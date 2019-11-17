@@ -51,7 +51,7 @@ del() {
 
 show() {
     checkf "$PW_DIR/$1.gpg"
-    gpg2 --decrypt --quiet --use-agent "$PW_DIR/$1.gpg"
+    gpg2 --decrypt --quiet --use-agent "$PW_DIR/$1.gpg" | head -1
 }
 
 # TODO: rework having to checkf twice
