@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# pw - a mnml password manager
+
+# export PW_DIR to your own path
+[[ -z "$PW_DIR" ]] && PW_DIR="$HOME/.pw"
+
+init() {
+    if [[ ! -e "$PW_DIR" ]]; then
+        mkdir -p "$PW_DIR"
+        echo "pw: password directory initialized at $PW_DIR"
+    else
+        echo "PW_DIR is $PW_DIR" 
+        die "$PW_DIR exists"
+    fi
+}
+
+add() {
+    # $1: path to file
+    # $2 [optional]: password text
+    [[ -z "$PW_KEY" ]] && die "\$PW_KEY not set"
+
+    if [[ "$#" -eq 2 ]]; then
+        pass="$2"
+    else
+        pass="$(pwgen 25 1 -s)"
+        echo "pw: generated password for $1"
+    fi
+    if [[ ! -f "$PW_DIR/$1.gpg" ]]; then
+        echo "$pass" | gpg2 -er "$PW_KEY" -o "$PW_DIR/$1.gpg"
+        echo "pw: $PW_DIR/$1.gpg created"
+    else
+        die "the file $PW_DIR/$1.gpg exists"
+    fi
+}
+
+del() {
+    read -rn 1 -p "pw: are you sure you want to delete $1? [y/n]: "
+    printf "\n"
+    [[ "$REPLY" == [yY] ]] && {
+        rm -f "$PW_DIR/$1.gpg"
+        echo "pw: deleted $1"
+    }
+}
+
+show() {
+    gpg2 --decrypt --quiet --use-agent "$PW_DIR/$1.gpg"
+}
+
+copy() {
+    show "$1" | xclip -selection clipboard
+    echo "pw: copied $1 to clipboard"
+}
+
+usage() {
+    usage="
+pw - mnml password manager
+
+usage: pw [options]
+All options except -i and -h require a NAME argument.
+
+options:
+  -i            Initializes password directory at \$HOME/.pw or at \$PW_DIR, if it exists.
+  -a            Add a password.
+  -g            Generate a password.
+  -s            Print password to STDOUT.
+  -c            Copy existing password to clipboard.
+  -d            Delete password.  
+  -h            Display this help message and exit.
+
+Requires PW_KEY to be set. Optionally, set PW_DIR for custom directory location.
+"
+
+    echo "$usage"
+    exit 1
+}
+
+die() {
+    printf "error: %s\n" "$1"
+    exit 1
+}
+
+
+main() {
+    [[ -z "$1" ]] && {
+        usage
+    }
+
+    while getopts "ia:g:s:c:d:h" options
+    do
+        case "$options" in
+            i) init ;;
+            g) add "$OPTARG" ;;
+            a) 
+               read -rsp "enter password: " pass
+               printf "\n"
+               add "$OPTARG" "$pass"
+               ;;
+            s) show "$OPTARG" ;;
+            c) copy "$OPTARG" ;;
+            d) del "$OPTARG" ;;
+            *|h) usage ;;
+        esac
+    done
+    
+    shift $(( OPTIND -1 ))
+}
+
+main "$@"
