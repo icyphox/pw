@@ -33,6 +33,12 @@ add() {
     fi
 }
 
+list() {
+    for f in "$PW_DIR"/*.gpg; do
+        printf '%s\n' "$(basename ${f%.gpg})"
+    done
+}
+
 del() {
     checkf "$PW_DIR/$1.gpg"
     read -rn 1 -p "pw: are you sure you want to delete $1? [y/n]: "
@@ -60,7 +66,7 @@ usage() {
     usage="
 pw - mnml password manager
 
-usage: pw [options]
+usage: pw [options] [NAME]
 All options except -i and -h require a NAME argument.
 
 options:
@@ -68,6 +74,7 @@ options:
   -a            Add a password.
   -g            Generate a password.
   -s            Print password to STDOUT.
+  -l            List out all passwords.
   -c            Copy existing password to clipboard.
   -d            Delete password.  
   -h            Display this help message and exit.
@@ -95,10 +102,11 @@ main() {
         usage
     }
 
-    while getopts "ia:g:s:c:d:h" options
+    while getopts "ila:g:s:c:d:h" options
     do
         case "$options" in
             i) init ;;
+            l) list ;;
             g) add "$OPTARG" ;;
             a) 
                read -rsp "enter password: " pass
