@@ -34,6 +34,7 @@ add() {
 }
 
 del() {
+    checkf "$PW_DIR/$1.gpg"
     read -rn 1 -p "pw: are you sure you want to delete $1? [y/n]: "
     printf "\n"
     [[ "$REPLY" == [yY] ]] && {
@@ -43,10 +44,14 @@ del() {
 }
 
 show() {
+    checkf "$PW_DIR/$1.gpg"
     gpg2 --decrypt --quiet --use-agent "$PW_DIR/$1.gpg"
 }
 
+# TODO: rework having to checkf twice
+
 copy() {
+    checkf "$PW_DIR/$1.gpg"
     show "$1" | xclip -selection clipboard
     echo "pw: copied $1 to clipboard"
 }
@@ -72,6 +77,11 @@ Requires PW_KEY to be set. Optionally, set PW_DIR for custom directory location.
 
     echo "$usage"
     exit 1
+}
+
+checkf() {
+    [[ ! -f "$1" ]] &&
+        die "$1 does not exist"
 }
 
 die() {
