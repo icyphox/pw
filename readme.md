@@ -18,7 +18,8 @@ export PW_KEY=user@mail.id
 This is your GPG key's associated email ID.
 
 Optionally, you may set `PW_DIR` to your desired path to change the
-default password store location, which is `~/.pw`.
+default password store location, which is `~/.pw`. To override the
+default password length of 25, set `PW_LEN` to a number of your choice.
 
 ```
 pw - mnml password manager

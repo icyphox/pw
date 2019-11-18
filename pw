@@ -22,7 +22,8 @@ add() {
     if [[ "$#" -eq 2 ]]; then
         pass="$2"
     else
-        pass="$(pwgen 25 1 -s)"
+        # uses default length of 25 chars, unless PW_LEN is set
+        pass="$(pwgen ${PW_LEN:-25} 1 -s)"
         echo "pw: generated password for $1"
     fi
     if [[ ! -f "$PW_DIR/$1.gpg" ]]; then
@@ -80,6 +81,7 @@ options:
   -h            Display this help message and exit.
 
 Requires PW_KEY to be set. Optionally, set PW_DIR for custom directory location.
+Set PW_LEN to an integer of your choice, to override the default password length of 25.
 "
 
     echo "$usage"
