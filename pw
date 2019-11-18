@@ -9,7 +9,7 @@ init() {
         mkdir -p "$PW_DIR"
         echo "pw: password directory initialized at $PW_DIR"
     else
-        echo "PW_DIR is $PW_DIR" 
+        echo "PW_DIR is $PW_DIR"
         die "$PW_DIR exists"
     fi
 }
@@ -35,7 +35,7 @@ add() {
 
 list() {
     for f in "$PW_DIR"/*.gpg; do
-        printf '%s\n' "$(basename ${f%.gpg})"
+        printf '%s\n' "$(basename "${f%.gpg}")"
     done
 }
 
@@ -58,7 +58,7 @@ show() {
 
 copy() {
     checkf "$PW_DIR/$1.gpg"
-    show "$1" | xclip -selection clipboard
+    show "$1" | xclip -rmlastnl -selection clipboard
     echo "pw: copied $1 to clipboard"
 }
 
@@ -76,7 +76,7 @@ options:
   -s            Print password to STDOUT.
   -l            List out all passwords.
   -c            Copy existing password to clipboard.
-  -d            Delete password.  
+  -d            Delete password.
   -h            Display this help message and exit.
 
 Requires PW_KEY to be set. Optionally, set PW_DIR for custom directory location.
@@ -104,11 +104,12 @@ main() {
 
     while getopts "ila:g:s:c:d:h" options
     do
+        # shellcheck disable=SC2221,SC2222
         case "$options" in
             i) init ;;
             l) list ;;
             g) add "$OPTARG" ;;
-            a) 
+            a)
                read -rsp "enter password: " pass
                printf "\n"
                add "$OPTARG" "$pass"
@@ -119,7 +120,7 @@ main() {
             *|h) usage ;;
         esac
     done
-    
+
     shift $(( OPTIND -1 ))
 }
 
