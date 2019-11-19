@@ -23,7 +23,7 @@ add() {
         pass="$2"
     else
         # uses default length of 25 chars, unless PW_LEN is set
-        pass="$(pwgen ${PW_LEN:-25} 1 -s)"
+        pass="$(pwgen "${PW_LEN:-25}" 1 -s)"
         echo "pw: generated password for $1"
     fi
     if [[ ! -f "$PW_DIR/$1.gpg" ]]; then
