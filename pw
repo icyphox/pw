@@ -7,9 +7,9 @@
 init() {
     if [[ ! -e "$PW_DIR" ]]; then
         mkdir -p "$PW_DIR"
-        echo "pw: password directory initialized at $PW_DIR"
+        printf "pw: password directory initialized at %s" "$PW_DIR"
     else
-        echo "PW_DIR is $PW_DIR"
+        printf "PW_DIR is %s" "$PW_DIR"
         die "$PW_DIR exists"
     fi
 }
@@ -24,13 +24,13 @@ add() {
     else
         # uses default length of 25 chars, unless PW_LEN is set
         pass="$(pwgen "${PW_LEN:-25}" 1 -s)"
-        echo "pw: generated password for $1"
+        printf "pw: generated password for %s" "$1"
     fi
     if [[ ! -f "$PW_DIR/$1.gpg" ]]; then
-        echo "$pass" | gpg2 -er "$PW_KEY" -o "$PW_DIR/$1.gpg"
-        echo "pw: $PW_DIR/$1.gpg created"
+        printf "%s" "$pass" | gpg2 -er "$PW_KEY" -o "$PW_DIR/$1.gpg"
+        printf "pw: %s/%s.gpg created" "$PW_DIR" "$1"
     else
-        die "the file $PW_DIR/$1.gpg exists"
+        die "the file %s/%s.gpg exists" "$PW_DIR" "$1"
     fi
 }
 
@@ -46,7 +46,7 @@ del() {
     printf "\n"
     [[ "$REPLY" == [yY] ]] && {
         rm -f "$PW_DIR/$1.gpg"
-        echo "pw: deleted $1"
+        printf "pw: deleted %s" "$1"
     }
 }
 
@@ -60,7 +60,7 @@ show() {
 copy() {
     checkf "$PW_DIR/$1.gpg"
     show "$1" | xclip -rmlastnl -selection clipboard
-    echo "pw: copied $1 to clipboard"
+    printf "pw: copied %s to clipboard" "$1"
 }
 
 usage() {
@@ -84,7 +84,7 @@ Requires PW_KEY to be set. Optionally, set PW_DIR for custom directory location.
 Set PW_LEN to an integer of your choice, to override the default password length of 25.
 "
 
-    echo "$usage"
+    printf "%s" "$usage"
     exit 1
 }
 
@@ -94,7 +94,7 @@ checkf() {
 }
 
 die() {
-    printf "error: %s\n" "$1"
+    printf "error: %s\n" "$1" >&2
     exit 1
 }
 
