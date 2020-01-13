@@ -52,14 +52,14 @@ del() {
 
 show() {
     checkf "$PW_DIR/$1.gpg"
-    gpg2 --decrypt --quiet --use-agent "$PW_DIR/$1.gpg" | head -1
+    gpg2 --decrypt --quiet --use-agent "$PW_DIR/$1.gpg"
 }
 
 # TODO: rework having to checkf twice
 
 copy() {
     checkf "$PW_DIR/$1.gpg"
-    show "$1" | xclip -rmlastnl -selection clipboard
+    show "$1" | head -1 | xclip -rmlastnl -selection clipboard
     printf "pw: copied %s to clipboard" "$1"
 }
 
