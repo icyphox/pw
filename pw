@@ -7,9 +7,9 @@
 init() {
     if [[ ! -e "$PW_DIR" ]]; then
         mkdir -p "$PW_DIR"
-        printf "pw: password directory initialized at %s" "$PW_DIR"
+        printf "pw: password directory initialized at %s\n" "$PW_DIR"
     else
-        printf "PW_DIR is %s" "$PW_DIR"
+        printf "PW_DIR is %s\n" "$PW_DIR"
         die "$PW_DIR exists"
     fi
 }
@@ -24,11 +24,11 @@ add() {
     else
         # uses default length of 25 chars, unless PW_LEN is set
         pass="$(pwgen "${PW_LEN:-25}" 1 -s)"
-        printf "pw: generated password for %s" "$1"
+        printf "pw: generated password for %s\n" "$1"
     fi
     if [[ ! -f "$PW_DIR/$1.gpg" ]]; then
         printf "%s" "$pass" | gpg2 -er "$PW_KEY" -o "$PW_DIR/$1.gpg"
-        printf "pw: %s/%s.gpg created" "$PW_DIR" "$1"
+        printf "pw: %s/%s.gpg created\n" "$PW_DIR" "$1"
     else
         die "the file %s/%s.gpg exists" "$PW_DIR" "$1"
     fi
@@ -60,7 +60,7 @@ show() {
 copy() {
     checkf "$PW_DIR/$1.gpg"
     show "$1" | head -1 | xclip -rmlastnl -selection clipboard
-    printf "pw: copied %s to clipboard" "$1"
+    printf "pw: copied %s to clipboard\n" "$1"
 }
 
 usage() {
