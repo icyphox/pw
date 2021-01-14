@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 # pw - a mnml password manager
 
+command -v gpg >/dev/null 2>&1 && gpg=gpg
+command -v gpg2 >/dev/null 2>&1 && gpg=gpg2
+
+# check if xclip or pbcopy exist
+# command -v xclip >/dev/null 2>&1 && copy="xclip -rmlastnl -selection clipboard"
+# command -v pbcopy >/dev/null 2>&1 && copy="pbcopy | tr -d '\n'"
+
 # export PW_DIR to your own path
 [[ -z "$PW_DIR" ]] && PW_DIR="$HOME/.pw"
 
@@ -27,7 +34,7 @@ add() {
         printf "pw: generated password for %s\n" "$1"
     fi
     if [[ ! -f "$PW_DIR/$1.gpg" ]]; then
-        printf "%s" "$pass" | gpg2 -er "$PW_KEY" -o "$PW_DIR/$1.gpg"
+        printf "%s" "$pass" | "$gpg "-er "$PW_KEY" -o "$PW_DIR/$1.gpg"
         printf "pw: %s/%s.gpg created\n" "$PW_DIR" "$1"
     else
         die "the file %s/%s.gpg exists" "$PW_DIR" "$1"
@@ -52,14 +59,18 @@ del() {
 
 show() {
     checkf "$PW_DIR/$1.gpg"
-    gpg2 --decrypt --quiet --use-agent "$PW_DIR/$1.gpg"
+    "$gpg" --decrypt --quiet --use-agent "$PW_DIR/$1.gpg"
 }
 
 # TODO: rework having to checkf twice
 
 copy() {
     checkf "$PW_DIR/$1.gpg"
-    show "$1" | head -1 | xclip -rmlastnl -selection clipboard
+    if [[ "$OSTYPE" =~ darwin* ]]; then
+        show "$1" | head -1 | pbcopy | tr -d '\n'
+    else
+        show "$1" | head -1 | xclip -rmlastnl -selection clipboard
+    fi
     printf "pw: copied %s to clipboard\n" "$1"
 }
 
